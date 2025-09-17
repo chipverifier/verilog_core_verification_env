@@ -1,0 +1,2 @@
+VCD info: dumpfile waves/tb_and_gate.vcd opened for output.
+../tb/combinational/tb_and_gate.v:40: $finish called at 40 (1s)
