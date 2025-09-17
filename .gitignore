@@ -1,0 +1,24 @@
+# 仿真相关（适配iverilog/ModelSim）
+sim/          # 仿真输出目录（日志+波形）
+coverage/     # 覆盖率报告目录
+*.vcd         # 波形文件
+*.out         # iverilog编译输出
+*.log         # 仿真日志
+*.do          # ModelSim脚本（如compile.do、sim.do）
+*.wlf         # ModelSim波形文件
+*.vdb         # Verdi覆盖率数据库
+
+# 工具配置文件
+.synopsys_dc.setup  # DC综合配置
+*.f                # 文件列表（如src.f、tb.f）
+
+# IDE配置（覆盖主流工具）
+.vscode/      # VSCode
+.idea/        # PyCharm/CLion（写RM脚本用）
+.DS_Store     # Mac系统自动生成文件
+Thumbs.db     # Windows系统自动生成文件
+
+# 脚本临时文件
+scripts/tmp/  # 存放脚本执行过程中的临时数据
+*.pyc         # Python脚本编译文件（RM用）
+*.o           # C++编译文件（RM用）
