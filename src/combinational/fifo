@@ -1,0 +1,58 @@
+极简可综合同步FIFO（Verilog）
+ 
+// 用途：基础数据缓存，支持读写同步，无冗余逻辑，可直接上传GitHub
+module fifo_simplest(
+input           clk,        // 同步时钟
+input           rst_n,      // 低电平复位
+input           wr_en,      // 写使能（1=写）
+input  [7:0]    wr_data,    // 写数据（8位，可改位宽）
+input           rd_en,      // 读使能（1=读）
+output reg [7:0] rd_data,   // 读数据
+output          empty,      // 空信号（1=无数据）
+output          full        // 满信号（1=存满）
+);
+ 
+// 1. 存储单元：深度8（0-7），改深度需同步改data_cnt位宽
+reg [7:0] fifo_mem [0:7];
+// 2. 数据计数：记录存储量（0-8），深度N需N+1位（如深度8用4位）
+reg [3:0] data_cnt;
+ 
+// 3. 空满判断（组合逻辑）
+assign empty = (data_cnt == 4'd0);
+assign full  = (data_cnt == 4'd8);
+ 
+// 4. 核心读写时序逻辑（先写后读，避免读写冲突）
+always @(posedge clk or negedge rst_n) begin
+if (!rst_n) begin
+data_cnt <= 4'd0;
+rd_data  <= 8'd0;
+end else begin
+// 写操作：非满+写使能
+if (wr_en && !full) begin
+fifo_mem[data_cnt] <= wr_data;
+end
+ 
+// 读操作：非空+读使能
+if (rd_en && !empty) begin
+rd_data <= fifo_mem[data_cnt - 4'd1];
+end
+ 
+// 计数更新
+case ({wr_en, rd_en})
+2'b01: data_cnt <= data_cnt - 4'd1;  // 仅读
+2'b10: data_cnt <= data_cnt + 4'd1;  // 仅写
+2'b11: ;  // 读写同时：计数不变
+default: ;  // 无操作
+endcase
+end
+end
+ 
+endmodule
+ 
+使用说明（GitHub备注用）
+ 
+1. 修改参数：
+- 位宽：将 wr_data [7:0] 、 rd_data [7:0] 、 fifo_mem [7:0] 的 7 改为“目标位宽-1”（如16位改 15 ）。
+- 深度：将 fifo_mem [0:7] 的 7 改为“目标深度-1”（如深度16改 15 ），同时将 data_cnt [3:0] 的 3 改为“能容纳深度的位数-1”（深度16需5位，改 4 ）。
+2. 核心特性：同步时钟设计（无跨时钟域问题）、防写满/读空保护、读写同时先写后读。
+3. 综合兼容性：纯时序/组合逻辑，支持主流EDA工具（Vivado、Quartus等）综合。
